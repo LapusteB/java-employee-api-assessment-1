@@ -1,2 +1,13 @@
 spring.application.name: employee-api
 server.port: 8111
+
+# Mock API configuration
+mock:
+  api:
+    base-url: http://localhost:8112
+    
+# Retry configuration for rate limiting
+retry:
+  max-attempts: 5
+  base-delay-ms: 100
+  max-delay-ms: 2000

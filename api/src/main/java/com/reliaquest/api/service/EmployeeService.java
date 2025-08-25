@@ -4,6 +4,7 @@ import com.reliaquest.api.model.Employee;
 import com.reliaquest.api.model.CreateEmployeeInput;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.http.HttpMethod;
 import org.springframework.beans.factory.annotation.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -126,14 +127,22 @@ public class EmployeeService {
         String url = mockApiBaseUrl + "/api/v1/employee";
         
         try {
-            // Create delete input for the mock server
+            // First, get the employee to find their name
+            Employee employee = getEmployeeById(id);
+            if (employee == null) {
+                throw new RuntimeException("Employee with ID " + id + " not found");
+            }
+            
+            // Create delete input for the mock server (it expects name, not ID)
             java.util.Map<String, Object> deleteInput = new java.util.HashMap<>();
-            deleteInput.put("name", id); // Mock server expects name for deletion
+            deleteInput.put("name", employee.getEmployeeName());
             
-            // DELETE to mock server
-            restTemplate.delete(url, deleteInput);
+            // DELETE to mock server with request body
+            restTemplate.exchange(url, HttpMethod.DELETE, 
+                new org.springframework.http.HttpEntity<>(deleteInput), 
+                String.class);
             
-            log.info("Successfully deleted employee with ID: {}", id);
+            log.info("Successfully deleted employee with ID: {} and name: {}", id, employee.getEmployeeName());
             return "Employee deleted successfully";
             
         } catch (Exception e) {

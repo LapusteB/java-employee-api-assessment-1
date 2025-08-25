@@ -121,6 +121,27 @@ public class EmployeeService {
         }
     }
     
+    public String deleteEmployeeById(String id) {
+        // Make HTTP DELETE to mock server to delete employee
+        String url = mockApiBaseUrl + "/api/v1/employee";
+        
+        try {
+            // Create delete input for the mock server
+            java.util.Map<String, Object> deleteInput = new java.util.HashMap<>();
+            deleteInput.put("name", id); // Mock server expects name for deletion
+            
+            // DELETE to mock server
+            restTemplate.delete(url, deleteInput);
+            
+            log.info("Successfully deleted employee with ID: {}", id);
+            return "Employee deleted successfully";
+            
+        } catch (Exception e) {
+            log.error("Error deleting employee via mock server: {}", e.getMessage());
+            throw new RuntimeException("Failed to delete employee via mock server", e);
+        }
+    }
+    
     // Inner class to match the mock API response structure for GET requests
     public static class MockApiResponse {
         private List<Employee> data;

@@ -2,23 +2,32 @@ package com.reliaquest.api.controller;
 
 import com.reliaquest.api.model.Employee;
 import com.reliaquest.api.model.CreateEmployeeInput;
+import com.reliaquest.api.service.EmployeeService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-// Fill out the controller class to implement the IEmployeeController interface
-// The controller class is responsible for handling the HTTP requests and responses
-// The controller class is annotated with @RestController to mark the class as a Spring REST controller
-// The controller class implements the IEmployeeController interface to define the HTTP endpoints
-// The controller class is used to handle the HTTP requests and responses for the Employee resource
 
 @RestController
 public class EmployeeController implements IEmployeeController<Employee, CreateEmployeeInput> {
     
+    private final EmployeeService employeeService;
+    
+    @Autowired
+    public EmployeeController(EmployeeService employeeService) {
+        this.employeeService = employeeService;
+    }
+    
     @Override
     public ResponseEntity<List<Employee>> getAllEmployees() {
-        // TODO: Implement
-        return null;
+        try {
+            List<Employee> employees = employeeService.getAllEmployees();
+            return ResponseEntity.ok(employees);
+        } catch (Exception e) {
+            // Log the error (you can add proper logging here)
+            return ResponseEntity.internalServerError().build();
+        }
     }
     
     @Override

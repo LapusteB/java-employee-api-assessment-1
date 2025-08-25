@@ -5,6 +5,13 @@ plugins {
 
 java {
     toolchain {
+        languageVersion = JavaLanguageVersion.of(17)// Using Java 17
+    }
+}
+
+// Having some build errors with the Java toolchain
+tasks.withType(JavaCompile).configureEach {
+    javaCompiler = javaToolchains.compilerFor {
         languageVersion = JavaLanguageVersion.of(17)
     }
 }

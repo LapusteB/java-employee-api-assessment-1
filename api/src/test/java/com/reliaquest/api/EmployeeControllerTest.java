@@ -103,4 +103,34 @@ class EmployeeControllerTest {
         assertTrue(response.getBody().isEmpty());
         verify(employeeService, times(1)).getAllEmployees();
     }
+    
+    @Test
+    void getEmployeesByNameSearch_ShouldReturnMatchingEmployees_WhenServiceReturnsEmployees() {
+        // Given
+        String searchTerm = "John";
+        List<Employee> matchingEmployees = Arrays.asList(mockEmployees.get(0)); // John Doe
+        when(employeeService.getEmployeesByNameSearch(searchTerm)).thenReturn(matchingEmployees);
+        
+        // When
+        ResponseEntity<List<Employee>> response = employeeController.getEmployeesByNameSearch(searchTerm);
+        
+        // Then
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(1, response.getBody().size());
+        assertEquals("John Doe", response.getBody().get(0).getEmployeeName());
+        verify(employeeService, times(1)).getEmployeesByNameSearch(searchTerm);
+    }
+    
+    @Test
+    void getEmployeesByNameSearch_ShouldReturnBadRequest_WhenSearchStringIsEmpty() {
+        // Given
+        String emptySearch = "";
+        
+        // When
+        ResponseEntity<List<Employee>> response = employeeController.getEmployeesByNameSearch(emptySearch);
+        
+        // Then
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        verify(employeeService, never()).getEmployeesByNameSearch(any());
+    }
 }

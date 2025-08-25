@@ -32,8 +32,17 @@ public class EmployeeController implements IEmployeeController<Employee, CreateE
     
     @Override
     public ResponseEntity<List<Employee>> getEmployeesByNameSearch(String searchString) {
-        // TODO: Implement
-        return null;
+        try {
+            if (searchString == null || searchString.trim().isEmpty()) {
+                return ResponseEntity.badRequest().build();
+            }
+            
+            List<Employee> employees = employeeService.getEmployeesByNameSearch(searchString.trim());
+            return ResponseEntity.ok(employees);
+        } catch (Exception e) {
+            // Log the error (you can add proper logging here)
+            return ResponseEntity.internalServerError().build();
+        }
     }
     
     @Override

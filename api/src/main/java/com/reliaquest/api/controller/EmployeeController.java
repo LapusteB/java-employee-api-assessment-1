@@ -78,8 +78,13 @@ public class EmployeeController implements IEmployeeController<Employee, CreateE
     
     @Override
     public ResponseEntity<List<String>> getTopTenHighestEarningEmployeeNames() {
-        // TODO: Implement
-        return null;
+        try {
+            List<String> topTenNames = employeeService.getTopTenHighestEarningEmployeeNames();
+            return ResponseEntity.ok(topTenNames);
+        } catch (Exception e) {
+            // Log the error (you can add proper logging here)
+            return ResponseEntity.internalServerError().build();
+        }
     }
     
     @Override

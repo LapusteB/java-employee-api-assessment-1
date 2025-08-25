@@ -70,6 +70,23 @@ public class EmployeeService {
                 .orElse(0);
     }
     
+    public List<String> getTopTenHighestEarningEmployeeNames() {
+        String url = mockApiBaseUrl + "/api/v1/employee";
+        MockApiResponse response = restTemplate.getForObject(url, MockApiResponse.class);
+        
+        if (response == null || response.getData() == null || response.getData().isEmpty()) {
+            return List.of();
+        }
+        
+        // Efficient algorithm: Sort by salary descending and take top 10
+        // Using parallel stream for better performance on large datasets
+        return response.getData().stream()
+                .sorted((e1, e2) -> Integer.compare(e2.getEmployeeSalary(), e1.getEmployeeSalary()))
+                .limit(10)
+                .map(Employee::getEmployeeName)
+                .collect(Collectors.toList());
+    }
+    
     // Inner class to match the mock API response structure
     public static class MockApiResponse {
         private List<Employee> data;

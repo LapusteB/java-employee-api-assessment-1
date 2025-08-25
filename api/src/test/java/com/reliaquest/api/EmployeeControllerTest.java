@@ -53,6 +53,36 @@ class EmployeeControllerTest {
         
         mockEmployees = Arrays.asList(employee1, employee2);
     }
+    
+    // Helper method to create mock data for top 10 salary testing
+    private List<Employee> createMockTopSalaryEmployees() {
+        List<Employee> topSalaryEmployees = Arrays.asList(
+            createEmployee("CEO", "Alice Johnson", 200000),
+            createEmployee("CTO", "Bob Wilson", 180000),
+            createEmployee("CFO", "Carol Davis", 175000),
+            createEmployee("VP Engineering", "David Brown", 160000),
+            createEmployee("VP Sales", "Eva Garcia", 155000),
+            createEmployee("Senior Architect", "Frank Miller", 140000),
+            createEmployee("Senior Manager", "Grace Lee", 135000),
+            createEmployee("Lead Developer", "Henry Taylor", 130000),
+            createEmployee("Product Manager", "Ivy Chen", 125000),
+            createEmployee("Senior Developer", "Jack Anderson", 120000),
+            createEmployee("Developer", "Kate White", 110000),  // Should be excluded (11th)
+            createEmployee("Junior Developer", "Liam Clark", 90000)   // Should be excluded (12th)
+        );
+        return topSalaryEmployees;
+    }
+    
+    private Employee createEmployee(String title, String name, int salary) {
+        Employee emp = new Employee();
+        emp.setId(String.valueOf(System.currentTimeMillis())); // Unique ID
+        emp.setEmployeeName(name);
+        emp.setEmployeeSalary(salary);
+        emp.setEmployeeAge(25 + (int)(Math.random() * 20)); // Random age 25-45
+        emp.setEmployeeTitle(title);
+        emp.setEmployeeEmail(name.toLowerCase().replace(" ", ".") + "@company.com");
+        return emp;
+    }
 
     @Test // Run the backend mock server at localhost:8112
     void getAllEmployees_IntegrationTest() {
@@ -221,5 +251,69 @@ class EmployeeControllerTest {
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         assertNull(response.getBody());
         verify(employeeService, times(1)).getHighestSalaryOfEmployees();
+    }
+    
+    @Test
+    void getTopTenHighestEarningEmployeeNames_ShouldReturnTopTenNames_WhenServiceReturnsEmployees() {
+        // Given
+        List<String> expectedTopTenNames = Arrays.asList(
+            "Alice Johnson", "Bob Wilson", "Carol Davis", "David Brown", "Eva Garcia",
+            "Frank Miller", "Grace Lee", "Henry Taylor", "Ivy Chen", "Jack Anderson"
+        );
+        when(employeeService.getTopTenHighestEarningEmployeeNames()).thenReturn(expectedTopTenNames);
+        
+        // When
+        ResponseEntity<List<String>> response = employeeController.getTopTenHighestEarningEmployeeNames();
+        
+        // Then
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(10, response.getBody().size());
+        assertEquals("Alice Johnson", response.getBody().get(0)); // Highest earner first
+        assertEquals("Jack Anderson", response.getBody().get(9)); // 10th highest earner
+        verify(employeeService, times(1)).getTopTenHighestEarningEmployeeNames();
+    }
+    
+    @Test
+    void getTopTenHighestEarningEmployeeNames_ShouldReturnLessThanTen_WhenServiceReturnsLessEmployees() {
+        // Given
+        List<String> lessThanTenNames = Arrays.asList("Alice Johnson", "Bob Wilson", "Carol Davis");
+        when(employeeService.getTopTenHighestEarningEmployeeNames()).thenReturn(lessThanTenNames);
+        
+        // When
+        ResponseEntity<List<String>> response = employeeController.getTopTenHighestEarningEmployeeNames();
+        
+        // Then
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(3, response.getBody().size());
+        verify(employeeService, times(1)).getTopTenHighestEarningEmployeeNames();
+    }
+    
+    @Test
+    void getTopTenHighestEarningEmployeeNames_ShouldReturnEmptyList_WhenServiceReturnsEmptyList() {
+        // Given
+        when(employeeService.getTopTenHighestEarningEmployeeNames()).thenReturn(Arrays.asList());
+        
+        // When
+        ResponseEntity<List<String>> response = employeeController.getTopTenHighestEarningEmployeeNames();
+        
+        // Then
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertTrue(response.getBody().isEmpty());
+        verify(employeeService, times(1)).getTopTenHighestEarningEmployeeNames();
+    }
+    
+    @Test
+    void getTopTenHighestEarningEmployeeNames_ShouldReturnInternalServerError_WhenServiceThrowsException() {
+        // Given
+        when(employeeService.getTopTenHighestEarningEmployeeNames()).thenThrow(new RuntimeException("Service error"));
+        
+        // When
+        ResponseEntity<List<String>> response = employeeController.getTopTenHighestEarningEmployeeNames();
+        
+        // Then
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        assertNull(response.getBody());
+        verify(employeeService, times(1)).getTopTenHighestEarningEmployeeNames();
     }
 }

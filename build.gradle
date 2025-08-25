@@ -1,0 +1,15 @@
+plugins {
+    id 'java'
+}
+
+allprojects {
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(17)
+        }
+    }
+}
+
+subprojects {
+    apply plugin: 'java'
+}

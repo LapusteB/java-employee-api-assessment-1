@@ -6,10 +6,17 @@ import com.reliaquest.api.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
 @RestController
+@RequestMapping("/api/v1/employee")
 public class EmployeeController implements IEmployeeController<Employee, CreateEmployeeInput> {
     
     private final EmployeeService employeeService;
@@ -20,6 +27,7 @@ public class EmployeeController implements IEmployeeController<Employee, CreateE
     }
     
     @Override
+    @GetMapping
     public ResponseEntity<List<Employee>> getAllEmployees() {
         try {
             List<Employee> employees = employeeService.getAllEmployees();
@@ -31,7 +39,8 @@ public class EmployeeController implements IEmployeeController<Employee, CreateE
     }
     
     @Override
-    public ResponseEntity<List<Employee>> getEmployeesByNameSearch(String searchString) {
+    @GetMapping("/search")
+    public ResponseEntity<List<Employee>> getEmployeesByNameSearch(@RequestParam String searchString) {
         try {
             if (searchString == null || searchString.trim().isEmpty()) {
                 return ResponseEntity.badRequest().build();
@@ -46,7 +55,8 @@ public class EmployeeController implements IEmployeeController<Employee, CreateE
     }
     
     @Override
-    public ResponseEntity<Employee> getEmployeeById(String id) {
+    @GetMapping("/{id}")
+    public ResponseEntity<Employee> getEmployeeById(@PathVariable String id) {
         try {
             if (id == null || id.trim().isEmpty()) {
                 return ResponseEntity.badRequest().build();
@@ -66,6 +76,7 @@ public class EmployeeController implements IEmployeeController<Employee, CreateE
     }
     
     @Override
+    @GetMapping("/highest-salary")
     public ResponseEntity<Integer> getHighestSalaryOfEmployees() {
         try {
             Integer highestSalary = employeeService.getHighestSalaryOfEmployees();
@@ -77,6 +88,7 @@ public class EmployeeController implements IEmployeeController<Employee, CreateE
     }
     
     @Override
+    @GetMapping("/top-ten")
     public ResponseEntity<List<String>> getTopTenHighestEarningEmployeeNames() {
         try {
             List<String> topTenNames = employeeService.getTopTenHighestEarningEmployeeNames();
@@ -88,9 +100,38 @@ public class EmployeeController implements IEmployeeController<Employee, CreateE
     }
     
     @Override
-    public ResponseEntity<Employee> createEmployee(CreateEmployeeInput employeeInput) {
-        // TODO: Implement
-        return null;
+    @PostMapping
+    public ResponseEntity<Employee> createEmployee(@RequestBody CreateEmployeeInput employeeInput) {
+        try {
+            // Validate input
+            if (employeeInput == null) {
+                return ResponseEntity.badRequest().build();
+            }
+            
+            if (employeeInput.getName() == null || employeeInput.getName().trim().isEmpty()) {
+                return ResponseEntity.badRequest().build();
+            }
+            
+            if (employeeInput.getSalary() == null || employeeInput.getSalary() <= 0) {
+                return ResponseEntity.badRequest().build();
+            }
+            
+            if (employeeInput.getAge() == null || employeeInput.getAge() <= 0) {
+                return ResponseEntity.badRequest().build();
+            }
+            
+            if (employeeInput.getTitle() == null || employeeInput.getTitle().trim().isEmpty()) {
+                return ResponseEntity.badRequest().build();
+            }
+            
+            // Create employee
+            Employee createdEmployee = employeeService.createEmployee(employeeInput);
+            return ResponseEntity.ok(createdEmployee);
+            
+        } catch (Exception e) {
+            // Log the error (you can add proper logging here)
+            return ResponseEntity.internalServerError().build();
+        }
     }
     
     @Override

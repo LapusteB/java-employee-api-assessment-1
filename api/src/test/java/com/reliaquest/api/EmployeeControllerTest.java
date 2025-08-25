@@ -133,4 +133,50 @@ class EmployeeControllerTest {
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         verify(employeeService, never()).getEmployeesByNameSearch(any());
     }
+    
+    @Test
+    void getEmployeeById_ShouldReturnEmployee_WhenServiceReturnsEmployee() {
+        // Given
+        String employeeId = "1";
+        Employee foundEmployee = mockEmployees.get(0); // John Doe
+        when(employeeService.getEmployeeById(employeeId)).thenReturn(foundEmployee);
+        
+        // When
+        ResponseEntity<Employee> response = employeeController.getEmployeeById(employeeId);
+        
+        // Then
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("John Doe", response.getBody().getEmployeeName());
+        assertEquals("1", response.getBody().getId());
+        verify(employeeService, times(1)).getEmployeeById(employeeId);
+    }
+    
+    @Test
+    void getEmployeeById_ShouldReturnNotFound_WhenServiceReturnsNull() {
+        // Given
+        String employeeId = "999";
+        when(employeeService.getEmployeeById(employeeId)).thenReturn(null);
+        
+        // When
+        ResponseEntity<Employee> response = employeeController.getEmployeeById(employeeId);
+        
+        // Then
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNull(response.getBody());
+        verify(employeeService, times(1)).getEmployeeById(employeeId);
+    }
+    
+    @Test
+    void getEmployeeById_ShouldReturnBadRequest_WhenIdIsEmpty() {
+        // Given
+        String emptyId = "";
+        
+        // When
+        ResponseEntity<Employee> response = employeeController.getEmployeeById(emptyId);
+        
+        // Then
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        verify(employeeService, never()).getEmployeeById(any());
+    }
 }

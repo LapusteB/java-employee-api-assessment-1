@@ -40,6 +40,20 @@ public class EmployeeService {
                 .collect(Collectors.toList());
     }
     
+    public Employee getEmployeeById(String id) {
+        String url = mockApiBaseUrl + "/api/v1/employee";
+        MockApiResponse response = restTemplate.getForObject(url, MockApiResponse.class);
+        
+        if (response == null || response.getData() == null) {
+            return null;
+        }
+        
+        return response.getData().stream()
+                .filter(employee -> id.equals(employee.getId()))
+                .findFirst()
+                .orElse(null);
+    }
+    
     // Inner class to match the mock API response structure
     public static class MockApiResponse {
         private List<Employee> data;

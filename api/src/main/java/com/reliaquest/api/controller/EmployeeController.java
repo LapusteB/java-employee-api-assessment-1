@@ -47,8 +47,22 @@ public class EmployeeController implements IEmployeeController<Employee, CreateE
     
     @Override
     public ResponseEntity<Employee> getEmployeeById(String id) {
-        // TODO: Implement
-        return null;
+        try {
+            if (id == null || id.trim().isEmpty()) {
+                return ResponseEntity.badRequest().build();
+            }
+            
+            Employee employee = employeeService.getEmployeeById(id.trim());
+            
+            if (employee == null) {
+                return ResponseEntity.notFound().build();
+            }
+            
+            return ResponseEntity.ok(employee);
+        } catch (Exception e) {
+            // Log the error (you can add proper logging here)
+            return ResponseEntity.internalServerError().build();
+        }
     }
     
     @Override

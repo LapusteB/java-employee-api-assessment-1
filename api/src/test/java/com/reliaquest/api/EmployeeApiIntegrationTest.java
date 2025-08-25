@@ -46,7 +46,7 @@ class EmployeeApiIntegrationTest {
         assertNotNull(createResponse.getBody());
         String employeeId = createResponse.getBody().getId();
         
-        System.out.println("✅ Created employee with ID: " + employeeId);
+        System.out.println("Created employee with ID: " + employeeId);
 
         // Step 2: Verify employee exists
         ResponseEntity<Employee> getResponse = restTemplate.getForEntity(
@@ -66,7 +66,7 @@ class EmployeeApiIntegrationTest {
         assertEquals(HttpStatus.OK, deleteResponse.getStatusCode());
         assertEquals("Employee deleted successfully", deleteResponse.getBody());
         
-        System.out.println("✅ Successfully deleted employee");
+        System.out.println("Successfully deleted employee");
 
         // Step 4: Verify employee is gone
         ResponseEntity<Employee> getAfterDeleteResponse = restTemplate.getForEntity(
@@ -75,6 +75,6 @@ class EmployeeApiIntegrationTest {
         );
         assertEquals(HttpStatus.NOT_FOUND, getAfterDeleteResponse.getStatusCode());
         
-        System.out.println("✅ Verified employee no longer exists");
+        System.out.println("Verified employee no longer exists");
     }
 }

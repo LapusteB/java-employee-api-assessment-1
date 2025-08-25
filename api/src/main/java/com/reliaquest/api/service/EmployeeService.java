@@ -54,6 +54,22 @@ public class EmployeeService {
                 .orElse(null);
     }
     
+    public Integer getHighestSalaryOfEmployees() {
+        String url = mockApiBaseUrl + "/api/v1/employee";
+        MockApiResponse response = restTemplate.getForObject(url, MockApiResponse.class);
+        
+        if (response == null || response.getData() == null || response.getData().isEmpty()) {
+            return 0;
+        }
+        
+        // Fast single-pass algorithm: O(n) time complexity
+        // No need to sort the entire list - just track the max!
+        return response.getData().stream()
+                .mapToInt(Employee::getEmployeeSalary)
+                .max()
+                .orElse(0);
+    }
+    
     // Inner class to match the mock API response structure
     public static class MockApiResponse {
         private List<Employee> data;

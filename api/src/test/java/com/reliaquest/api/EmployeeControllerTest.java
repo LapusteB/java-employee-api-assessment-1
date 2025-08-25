@@ -179,4 +179,47 @@ class EmployeeControllerTest {
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         verify(employeeService, never()).getEmployeeById(any());
     }
+    
+    @Test
+    void getHighestSalaryOfEmployees_ShouldReturnHighestSalary_WhenServiceReturnsSalary() {
+        // Given
+        Integer highestSalary = 60000;
+        when(employeeService.getHighestSalaryOfEmployees()).thenReturn(highestSalary);
+        
+        // When
+        ResponseEntity<Integer> response = employeeController.getHighestSalaryOfEmployees();
+        
+        // Then
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(highestSalary, response.getBody());
+        verify(employeeService, times(1)).getHighestSalaryOfEmployees();
+    }
+    
+    @Test
+    void getHighestSalaryOfEmployees_ShouldReturnZero_WhenServiceReturnsZero() {
+        // Given
+        when(employeeService.getHighestSalaryOfEmployees()).thenReturn(0);
+        
+        // When
+        ResponseEntity<Integer> response = employeeController.getHighestSalaryOfEmployees();
+        
+        // Then
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(0, response.getBody());
+        verify(employeeService, times(1)).getHighestSalaryOfEmployees();
+    }
+    
+    @Test
+    void getHighestSalaryOfEmployees_ShouldReturnInternalServerError_WhenServiceThrowsException() {
+        // Given
+        when(employeeService.getHighestSalaryOfEmployees()).thenThrow(new RuntimeException("Service error"));
+        
+        // When
+        ResponseEntity<Integer> response = employeeController.getHighestSalaryOfEmployees();
+        
+        // Then
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        assertNull(response.getBody());
+        verify(employeeService, times(1)).getHighestSalaryOfEmployees();
+    }
 }

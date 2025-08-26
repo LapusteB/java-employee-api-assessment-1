@@ -1,5 +1,8 @@
 package com.reliaquest.api;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 import com.reliaquest.api.controller.EmployeeController;
 import com.reliaquest.api.model.CreateEmployeeInput;
 import com.reliaquest.api.model.Employee;
@@ -12,18 +15,15 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
 @ExtendWith(MockitoExtension.class)
 class CreateEmployeeTest {
-    
+
     @Mock
     private EmployeeService employeeService;
-    
+
     @InjectMocks
     private EmployeeController employeeController;
-    
+
     @Test
     void createEmployee_ShouldReturnCreatedEmployee_WhenServiceReturnsEmployee() {
         // Given
@@ -54,20 +54,20 @@ class CreateEmployeeTest {
         assertEquals(75000, response.getBody().getEmployeeSalary());
         verify(employeeService, times(1)).createEmployee(input);
     }
-    
+
     @Test
     void createEmployee_ShouldReturnBadRequest_WhenInputIsNull() {
         // Given
         CreateEmployeeInput nullInput = null;
-        
+
         // When
         ResponseEntity<Employee> response = employeeController.createEmployee(nullInput);
-        
+
         // Then
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         verify(employeeService, never()).createEmployee(any());
     }
-    
+
     @Test
     void createEmployee_ShouldReturnBadRequest_WhenInputNameIsEmpty() {
         // Given
@@ -76,15 +76,15 @@ class CreateEmployeeTest {
         invalidInput.setSalary(50000);
         invalidInput.setAge(25);
         invalidInput.setTitle("Developer");
-        
+
         // When
         ResponseEntity<Employee> response = employeeController.createEmployee(invalidInput);
-        
+
         // Then
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         verify(employeeService, never()).createEmployee(any());
     }
-    
+
     @Test
     void createEmployee_ShouldReturnBadRequest_WhenInputSalaryIsNegative() {
         // Given
@@ -93,15 +93,15 @@ class CreateEmployeeTest {
         invalidInput.setSalary(-1000);
         invalidInput.setAge(25);
         invalidInput.setTitle("Developer");
-        
+
         // When
         ResponseEntity<Employee> response = employeeController.createEmployee(invalidInput);
-        
+
         // Then
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         verify(employeeService, never()).createEmployee(any());
     }
-    
+
     @Test
     void createEmployee_ShouldReturnInternalServerError_WhenServiceThrowsException() {
         // Given
@@ -110,30 +110,30 @@ class CreateEmployeeTest {
         input.setSalary(50000);
         input.setAge(25);
         input.setTitle("Developer");
-        
+
         when(employeeService.createEmployee(input)).thenThrow(new RuntimeException("Service error"));
-        
+
         // When
         ResponseEntity<Employee> response = employeeController.createEmployee(input);
-        
+
         // Then
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         assertNull(response.getBody());
         verify(employeeService, times(1)).createEmployee(input);
     }
-    
+
     @Test
     void createEmployee_ShouldReturnBadRequest_WhenInputIsInvalid() {
         // Given
         CreateEmployeeInput invalidInput = new CreateEmployeeInput();
-        invalidInput.setName("");  // Empty name
+        invalidInput.setName(""); // Empty name
         invalidInput.setSalary(50000);
         invalidInput.setAge(25);
         invalidInput.setTitle("Developer");
-        
+
         // When
         ResponseEntity<Employee> response = employeeController.createEmployee(invalidInput);
-        
+
         // Then
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         verify(employeeService, never()).createEmployee(any());
